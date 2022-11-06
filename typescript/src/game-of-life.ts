@@ -49,13 +49,26 @@ const isNeighborNumber = (num: number): num is NumberOfNeighbors =>
 export const getCellsThatCanChange = (field: Field): Field => {
     const newCells = new Set<Cell>(field)
 
-    const cells = [...field]
-    cells.forEach(cell => {
+    field.forEach(cell => {
         getNeighborCandidates(cell).forEach(neighbor => {
             if (!containsCell(newCells, neighbor)) {
                 newCells.add(neighbor)
             }
         })
+    })
+
+    return newCells
+}
+
+export const calculateNextGeneration = (field: Field): Field => {
+    const newCells = new Set<Cell>()
+
+    getCellsThatCanChange(field).forEach(cell => {
+        const neighbors = countNeighbors(field, cell)
+        const state = containsCell(field, cell) ? 'Alive' : 'Dead'
+        if (getNextCellState(state, neighbors) === 'Alive') {
+            newCells.add(cell)
+        }
     })
 
     return newCells

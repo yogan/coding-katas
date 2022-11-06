@@ -1,4 +1,4 @@
-import { Cell, countNeighbors, getCellsThatCanChange, getNeighborCandidates, getNextCellState } from "./game-of-life"
+import { calculateNextGeneration, Cell, countNeighbors, getCellsThatCanChange, getNeighborCandidates, getNextCellState } from "./game-of-life"
 
 describe("getNextCellState()", () => {
     it("returns whatever the game of life rules say", () => {
@@ -110,5 +110,92 @@ describe("getCellsThatCanChange() returns cells that might change in the next ge
         const cells = getCellsThatCanChange(field)
 
         expect(cells).toEqual(expected)
+    })
+})
+
+describe("calculateNextGeneration() returns the next generation", () => {
+    it("for an empty field", () => {
+        const emptyField = new Set<Cell>()
+
+        const nextGeneration = calculateNextGeneration(emptyField)
+
+        expect([...nextGeneration]).toHaveLength(0)
+    })
+
+    it("for three cells that evolve into a stable block", () => {
+        const initial = new Set([
+            { x: 1, y: 1 },
+            { x: 2, y: 1 }, { x: 2, y: 2 },
+        ])
+
+        const generation1 = calculateNextGeneration(initial)
+
+        expect(generation1).toEqual(new Set([
+            { x: 1, y: 1 }, { x: 1, y: 2 },
+            { x: 2, y: 1 }, { x: 2, y: 2 },
+        ]))
+
+        const generation2 = calculateNextGeneration(generation1)
+
+        expect(generation2).toEqual(new Set([
+            { x: 1, y: 1 }, { x: 1, y: 2 },
+            { x: 2, y: 1 }, { x: 2, y: 2 },
+        ]))
+    })
+
+    it("for a glider", () => {
+        //     0 1 2 3 (x)
+        //  0  . X . .
+        //  1  . . X .
+        //  2  X X X .
+        //  3  . . . .
+        // (y)
+        const gliderInitial = new Set([
+            { x: 0, y: 2 },
+            { x: 1, y: 0 }, { x: 1, y: 2 },
+            { x: 2, y: 1 }, { x: 2, y: 2 },
+        ])
+        //     0 1 2 3 (x)
+        //  0  . . . .
+        //  1  X . X .
+        //  2  . X X .
+        //  3  . X . .
+        // (y)
+        const gliderStep1 = new Set([
+            { x: 0, y: 1 },
+            { x: 1, y: 2 }, { x: 1, y: 3 },
+            { x: 2, y: 1 }, { x: 2, y: 2 },
+        ])
+        //     0 1 2 3 (x)
+        //  0  . . . .
+        //  1  . . X .
+        //  2  X . X .
+        //  3  . X X .
+        // (y)
+        const gliderStep2 = new Set([
+            { x: 0, y: 2 },
+            { x: 1, y: 3 },
+            { x: 2, y: 1 }, { x: 2, y: 2 }, { x: 2, y: 3 },
+        ])
+        //     0 1 2 3 (x)
+        //  0  . . . .
+        //  1  . X . .
+        //  2  . . X X
+        //  3  . X X .
+        // (y)
+        const gliderStep3 = new Set([
+            { x: 1, y: 1 }, { x: 1, y: 3 },
+            { x: 2, y: 2 }, { x: 2, y: 3 },
+            { x: 3, y: 2 },
+        ])
+
+        const generation1 = calculateNextGeneration(gliderInitial)
+        expect(generation1).toEqual(gliderStep1)
+
+        const generation2 = calculateNextGeneration(generation1)
+        expect(generation2).toEqual(gliderStep2)
+
+        const generation3 = calculateNextGeneration(generation2)
+        expect(generation3).toEqual(gliderStep3)
     })
 })
