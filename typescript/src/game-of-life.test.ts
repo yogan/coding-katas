@@ -1,4 +1,4 @@
-import { countNeighbors, getNeighborCandidates, getNextCellState } from "./game-of-life"
+import { Cell, countNeighbors, getCellsThatCanChange, getNeighborCandidates, getNextCellState } from "./game-of-life"
 
 describe("getNextCellState()", () => {
     it("returns whatever the game of life rules say", () => {
@@ -54,5 +54,61 @@ describe("countNeighbors()", () => {
         expect(countNeighbors(field, { x: 1, y: 1 })).toBe(3)
         expect(countNeighbors(field, { x: 2, y: 2 })).toBe(5)
         expect(countNeighbors(field, { x: 3, y: 3 })).toBe(2)
+    })
+})
+
+describe("getCellsThatCanChange() returns cells that might change in the next generation", () => {
+    it("for an empty field", () => {
+        const emptyField = new Set<Cell>()
+
+        const cells = getCellsThatCanChange(emptyField)
+
+        expect([...cells]).toHaveLength(0)
+    })
+
+    it("for a field with a single cell", () => {
+        const field = new Set([{ x: 0, y: 3 }])
+
+        const cells = getCellsThatCanChange(field)
+
+        expect(cells).toEqual(new Set([
+            { x: -1, y: 2 }, { x: -1, y: 3 }, { x: -1, y: 4 },
+            { x: +0, y: 2 }, { x: +0, y: 3 }, { x: +0, y: 4 },
+            { x: +1, y: 2 }, { x: +1, y: 3 }, { x: +1, y: 4 },
+        ]))
+    })
+
+    it("for a field with multiple cells", () => {
+        //     0 1 2 3 4 5 (x)
+        //  0  . . . X . .
+        //  1  . X . . . .
+        //  2  . . X X X .
+        //  3  . . . . . .
+        // (y)
+        const field = new Set([
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+            { x: 3, y: 0 }, { x: 3, y: 2 },
+            { x: 4, y: 2 },
+        ])
+        //     0 1 2 3 4 5 (x)
+        // -1  . . o o o .
+        //  0  o o o X o .
+        //  1  o X o o o o
+        //  2  o o X X X o
+        //  3  . o o o o o
+        // (y)
+        const expected = new Set([
+            { x: 0, y: +0 }, { x: 0, y: 1 }, { x: 0, y: 2 },
+            { x: 1, y: +0 }, { x: 1, y: 1 }, { x: 1, y: 2 }, { x: 1, y: 3 },
+            { x: 2, y: -1 }, { x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }, { x: 2, y: 3 },
+            { x: 3, y: -1 }, { x: 3, y: 0 }, { x: 3, y: 1 }, { x: 3, y: 2 }, { x: 3, y: 3 },
+            { x: 4, y: -1 }, { x: 4, y: 0 }, { x: 4, y: 1 }, { x: 4, y: 2 }, { x: 4, y: 3 },
+            { x: 5, y: +1 }, { x: 5, y: 2 }, { x: 5, y: 3 },
+        ])
+
+        const cells = getCellsThatCanChange(field)
+
+        expect(cells).toEqual(expected)
     })
 })

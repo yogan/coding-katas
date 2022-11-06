@@ -1,6 +1,8 @@
-type Cell = { x: number; y: number }
-type CellState = 'Dead' | 'Alive'
-type NumberOfNeighbors = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+export type Cell = { x: number; y: number }
+export type CellState = 'Dead' | 'Alive'
+export type Field = Set<Cell>
+export type NumberOfNeighbors = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+
 
 export const getNextCellState = (
     state: CellState,
@@ -11,14 +13,16 @@ export const getNextCellState = (
     return 'Dead'
 }
 
-export const getNeighborCandidates = ({ x, y }: Cell): Set<Cell> =>
+
+export const getNeighborCandidates = ({ x, y }: Cell): Field =>
     new Set([
         { x: x - 1, y: y - 1 }, { x: x - 1, y: y }, { x: x - 1, y: y + 1 },
         { x: x + 0, y: y - 1 }, /*               */ { x: x + 0, y: y + 1 },
         { x: x + 1, y: y - 1 }, { x: x + 1, y: y }, { x: x + 1, y: y + 1 },
     ])
 
-export const countNeighbors = (field: Set<Cell>, cell: Cell): NumberOfNeighbors => {
+
+export const countNeighbors = (field: Field, cell: Cell): NumberOfNeighbors => {
     const numberOfNeighbors = [...getNeighborCandidates(cell)]
         .map(candidate => containsCell(field, candidate))
         .reduce((acc, b) => acc + (b ? 1 : 0), 0)
@@ -31,7 +35,7 @@ export const countNeighbors = (field: Set<Cell>, cell: Cell): NumberOfNeighbors 
 // passing a cell as a new object to has() would never find anything in the Set.
 // Same thing for Array.prototype.includes(). What does work, however, is
 // Array.prototype.find() with a custom compare function that checks by value.
-const containsCell = (field: Set<Cell>, cell: Cell): boolean =>
+const containsCell = (field: Field, cell: Cell): boolean =>
     [...field].find(candidate => compareCells(cell, candidate)) !== undefined
 
 const compareCells = (left: Cell, right: Cell): boolean =>
@@ -40,3 +44,19 @@ const compareCells = (left: Cell, right: Cell): boolean =>
 
 const isNeighborNumber = (num: number): num is NumberOfNeighbors =>
     num >= 0 && num <= 8
+
+
+export const getCellsThatCanChange = (field: Field): Field => {
+    const newCells = new Set<Cell>(field)
+
+    const cells = [...field]
+    cells.forEach(cell => {
+        getNeighborCandidates(cell).forEach(neighbor => {
+            if (!containsCell(newCells, neighbor)) {
+                newCells.add(neighbor)
+            }
+        })
+    })
+
+    return newCells
+}
