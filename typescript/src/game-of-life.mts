@@ -35,7 +35,7 @@ export const countNeighbors = (field: Field, cell: Cell): NumberOfNeighbors => {
 // passing a cell as a new object to has() would never find anything in the Set.
 // Same thing for Array.prototype.includes(). What does work, however, is
 // Array.prototype.find() with a custom compare function that checks by value.
-const containsCell = (field: Field, cell: Cell): boolean =>
+export const containsCell = (field: Field, cell: Cell): boolean =>
     [...field].find(candidate => compareCells(cell, candidate)) !== undefined
 
 const compareCells = (left: Cell, right: Cell): boolean =>

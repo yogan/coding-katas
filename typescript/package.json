@@ -3,7 +3,9 @@
     "version": "1.0.0",
     "license": "MIT",
     "author": "Frank Blendinger <yogan@zogan.de>",
+    "type": "module",
     "scripts": {
+        "start": "ts-node --esm src/main.mts",
         "test": "jest",
         "test:watch": "jest --watch"
     },

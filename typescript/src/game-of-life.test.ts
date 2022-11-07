@@ -1,4 +1,4 @@
-import { calculateNextGeneration, Cell, countNeighbors, getCellsThatCanChange, getNeighborCandidates, getNextCellState } from "./game-of-life"
+import { calculateNextGeneration, Cell, countNeighbors, getCellsThatCanChange, getNeighborCandidates, getNextCellState } from "./game-of-life.mjs"
 
 describe("getNextCellState()", () => {
     it("returns whatever the game of life rules say", () => {
